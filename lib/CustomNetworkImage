@@ -1,0 +1,101 @@
+import 'dart:io';
+import 'dart:typed_data';
+import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
+
+class CustomNetworkImage extends StatefulWidget {
+  final String url;
+  final int maxRetries;
+  final Map<String, String>? headers;
+
+  const CustomNetworkImage({
+    Key? key,
+    required this.url,
+    this.maxRetries = 3,
+    this.headers,
+  }) : super(key: key);
+
+  @override
+  _CustomNetworkImageState createState() => _CustomNetworkImageState();
+}
+
+class _CustomNetworkImageState extends State<CustomNetworkImage> {
+  Uint8List? _imageData;
+  bool _isLoading = true;
+  String? _error;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadImageWithRetry();
+  }
+
+  Future<void> _loadImageWithRetry({int attempt = 1}) async {
+    if (attempt > widget.maxRetries) {
+      setState(() {
+        _isLoading = false;
+        _error = 'Failed to load image';
+      });
+      return;
+    }
+
+    try {
+      final bytes = await _fetchImageBytes(widget.url);
+      if (mounted) {
+        setState(() {
+          _imageData = bytes;
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      print('Image load attempt $attempt failed: $e');
+      await Future.delayed(const Duration(seconds: 1));
+      _loadImageWithRetry(attempt: attempt + 1);
+    }
+  }
+
+  Future<Uint8List> _fetchImageBytes(String url) async {
+    final HttpClient client = HttpClient()
+      ..connectionTimeout = const Duration(seconds: 15)
+      ..userAgent = widget.headers?['User-Agent'] ?? 'Flutter';
+
+    try {
+      final request = await client.getUrl(Uri.parse(url));
+      
+      widget.headers?.forEach((key, value) {
+        request.headers.add(key, value);
+      });
+
+      final response = await request.close();
+      
+      if (response.statusCode != HttpStatus.ok) {
+        throw HttpException(
+          'Request failed with status: ${response.statusCode}',
+          uri: Uri.parse(url),
+        );
+      }
+
+      final bytes = await consolidateHttpClientResponseBytes(response);
+      if (bytes.isEmpty) throw Exception('Empty image data');
+      
+      return bytes;
+    } finally {
+      client.close();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    } else if (_error != null) {
+      return const Center(child: Icon(Icons.error));
+    } else if (_imageData != null) {
+      return Image.memory(
+        _imageData!,
+        fit: BoxFit.cover,
+      );
+    }
+    return const Center(child: Icon(Icons.error));
+  }
+}
