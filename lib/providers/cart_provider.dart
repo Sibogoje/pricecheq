@@ -6,6 +6,11 @@ class CartProvider extends ChangeNotifier {
   List<Map<String, dynamic>> get cartItems => _cartItems;
 
   void addItem(String itemName, double price, String imageUrl) {
+    if (itemName.isEmpty || price <= 0 || imageUrl.isEmpty) {
+      debugPrint('Invalid item data: $itemName, $price, $imageUrl');
+      return;
+    }
+
     final existingItemIndex =
         _cartItems.indexWhere((item) => item['itemName'] == itemName);
 
@@ -19,6 +24,7 @@ class CartProvider extends ChangeNotifier {
         'imageUrl': imageUrl,
       });
     }
+    debugPrint('Item added to cart: $itemName, $price');
     notifyListeners();
   }
 

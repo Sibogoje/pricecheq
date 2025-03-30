@@ -2,6 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'dart:async';
 import 'providers/cart_provider.dart';
+import 'screens/settings_screen.dart'; // Import the SettingsScreen
+import 'screens/credits_screen.dart'; // Import the CreditsScreen
+import 'screens/orders_screen.dart'; // Import the OrdersScreen
+import 'screens/account_screen.dart'; // Import the AccountScreen
+import 'screens/help_screen.dart'; // Import the HelpScreen
+import 'data/items_data.dart'; // Import the items data
+import 'screens/shop_screen.dart';
 
 void main() {
   runApp(
@@ -34,13 +41,13 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   int _selectedIndex = 0;
+  bool _isSignedIn = false; // Track sign-in state
 
   static List<Widget> _widgetOptions = <Widget>[
     HomeScreen(),
     CartScreen(),
-    ExploreScreen(),
+    ExploreScreen(), // Updated to use the actual ExploreScreen
     ContributeScreen(),
-    ProfileScreen(),
   ];
 
   void _onItemTapped(int index) {
@@ -54,11 +61,13 @@ class _MyHomePageState extends State<MyHomePage> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Color.fromARGB(255, 64, 177, 113),
-        leading: IconButton(
-          icon: Icon(Icons.menu, color: Colors.black),
-          onPressed: () {
-            // Handle menu button press
-          },
+        leading: Builder(
+          builder: (context) => IconButton(
+            icon: Icon(Icons.menu, color: Colors.black),
+            onPressed: () {
+              Scaffold.of(context).openDrawer();
+            },
+          ),
         ),
         title: TextField(
           decoration: InputDecoration(
@@ -76,6 +85,125 @@ class _MyHomePageState extends State<MyHomePage> {
             },
           ),
         ],
+      ),
+      drawer: Drawer(
+        child: Column(
+          children: [
+            // Drawer Header with Logo
+            DrawerHeader(
+              decoration: BoxDecoration(
+                color: Color.fromARGB(255, 116, 23, 7),
+              ),
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Image.asset(
+                      'assets/logo.png', // Replace with your logo path
+                      width: 80,
+                      height: 80,
+                    ),
+                    SizedBox(height: 10),
+                    Text(
+                      'PriceCheQ',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            // Menu Items
+            ListTile(
+              leading: Icon(Icons.home),
+              title: Text('Home'),
+              onTap: () {
+                Navigator.pop(context);
+                setState(() {
+                  _selectedIndex = 0;
+                });
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.directions_run),
+              title: Text('Merrand'),
+              onTap: () {
+                Navigator.pop(context);
+                // Placeholder for Merrand functionality
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.settings),
+              title: Text('Settings'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => SettingsScreen()),
+                );
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.info),
+              title: Text('Credits'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => CreditsScreen()),
+                );
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.shopping_bag),
+              title: Text('Orders'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => OrdersScreen()),
+                );
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.account_circle),
+              title: Text('Account'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => AccountScreen()),
+                );
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.help),
+              title: Text('Help'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => HelpScreen()),
+                );
+              },
+            ),
+            Spacer(),
+            // Sign In/Logout Button
+            ListTile(
+              leading: Icon(_isSignedIn ? Icons.logout : Icons.login),
+              title: Text(_isSignedIn ? 'Logout' : 'Sign In'),
+              onTap: () {
+                setState(() {
+                  _isSignedIn = !_isSignedIn;
+                });
+                Navigator.pop(context);
+              },
+            ),
+          ],
+        ),
       ),
       body: _widgetOptions.elementAt(_selectedIndex),
       bottomNavigationBar: BottomNavigationBar(
@@ -96,10 +224,6 @@ class _MyHomePageState extends State<MyHomePage> {
           BottomNavigationBarItem(
             icon: Icon(Icons.add_circle_outline, color: Colors.black),
             label: 'Contribute',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person, color: Colors.black),
-            label: 'Profile',
           ),
         ],
         currentIndex: _selectedIndex,
@@ -223,55 +347,14 @@ class _HomeScreenState extends State<HomeScreen> {
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
                 SizedBox(height: 10),
-                SaleItem(
-                  itemName: 'Sunny Beans',
-                  shopName: 'Shoprite',
-                  price: 'E 45.00',
-                  imageUrl: 'https://i.postimg.cc/vmLYt8L6/bread.png',
-                ),
-                SaleItem(
-                  itemName: 'Mister Bread white',
-                  shopName: 'Buy \'n Save Spar',
-                  price: 'E 12.50',
-                  imageUrl: 'https://i.postimg.cc/JnsbPDpv/pnp.png',
-                ),
-                SaleItem(
-                  itemName: '5kg Mixed Chicken Portions',
-                  shopName: 'Pick n Pay',
-                  price: 'E 181.00',
-                  imageUrl: 'https://i.postimg.cc/vmLYt8L6/bread.png',
-                ),
-                SaleItem(
-                  itemName: 'Double Door KIC Fridge',
-                  shopName: 'Game',
-                  price: 'E 5,999.00',
-                  imageUrl:
-                      'https://i.postimg.cc/TPwZsRns/10807061-EA-in-Box-Image-checkers515-Wx515-H.png',
-                ),
-                SaleItem(
-                  itemName: 'Double Door KIC Fridge',
-                  shopName: 'Game',
-                  price: 'E 5,999.00',
-                  imageUrl: 'https://i.postimg.cc/JnsbPDpv/pnp.png',
-                ),
-                SaleItem(
-                  itemName: 'Double Door KIC Fridge',
-                  shopName: 'Game',
-                  price: 'E 5,999.00',
-                  imageUrl: 'https://i.postimg.cc/JnsbPDpv/pnp.png',
-                ),
-                SaleItem(
-                  itemName: 'Double Door KIC Fridge',
-                  shopName: 'Game',
-                  price: 'E 5,999.00',
-                  imageUrl: 'https://i.postimg.cc/JnsbPDpv/pnp.png',
-                ),
-                SaleItem(
-                  itemName: 'Double Door KIC Fridge',
-                  shopName: 'Game',
-                  price: 'E 5,999.00',
-                  imageUrl: 'https://i.postimg.cc/JnsbPDpv/pnp.png',
-                ),
+                ...itemsData.map((item) {
+                  return SaleItem(
+                    itemName: item['itemName']!,
+                    shopName: item['shopName']!,
+                    price: item['price']!,
+                    imageUrl: item['imageUrl']!,
+                  );
+                }).toList(),
               ],
             ),
           ),
@@ -329,12 +412,27 @@ class SaleItem extends StatelessWidget {
                     children: [
                       ElevatedButton(
                         onPressed: () {
-                          Provider.of<CartProvider>(context, listen: false)
-                              .addItem(itemName,
-                                  double.parse(price.substring(2)), imageUrl);
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('$itemName added to cart!')),
-                          );
+                          // Extract numeric value from price using RegExp
+                          final priceMatch =
+                              RegExp(r'\d+(\.\d+)?').firstMatch(price.trim());
+                          final parsedPrice = priceMatch != null
+                              ? double.tryParse(priceMatch.group(0)!)
+                              : null;
+
+                          if (parsedPrice != null) {
+                            Provider.of<CartProvider>(context, listen: false)
+                                .addItem(itemName, parsedPrice, imageUrl);
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                  content: Text('$itemName added to cart!')),
+                            );
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                  content:
+                                      Text('Failed to add $itemName to cart.')),
+                            );
+                          }
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.green,
@@ -545,29 +643,152 @@ class CartScreen extends StatelessWidget {
   }
 }
 
+
+
 class ExploreScreen extends StatelessWidget {
+  final List<Map<String, String>> shops = [
+     {'name': 'Shoprite', 'imageUrl': 'https://i.postimg.cc/qMjrDxvM/image.png'},
+    {'name': 'Pick n Pay', 'imageUrl': 'https://i.postimg.cc/kMyPDv8F/image.png'},
+    {'name': 'Game', 'imageUrl': 'https://i.postimg.cc/3NhhVLGW/image.png'},
+    {'name': 'Spar', 'imageUrl': 'https://i.postimg.cc/rFzZc19p/image.png'},
+    {'name': 'Edgars', 'imageUrl': 'https://i.postimg.cc/xdV6KWVk/image.png'},
+    {'name': 'Truworths', 'imageUrl': 'https://i.postimg.cc/VNzjs1cF/image.png'},
+  ];
+
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Text('Explore Screen'),
+    final screenWidth = MediaQuery.of(context).size.width;
+
+    // Determine the number of cards per row based on screen width
+    final crossAxisCount = screenWidth > 1200
+        ? 4 // Four cards per row for large screens
+        : screenWidth > 800
+            ? 3 // Three cards per row for medium screens
+            : 2; // Two cards per row for small screens
+
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Explore Shops'),
+        backgroundColor: Color.fromARGB(255, 64, 177, 113),
+      ),
+      body: GridView.builder(
+        padding: EdgeInsets.all(16),
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: crossAxisCount, // Dynamic number of cards per row
+          crossAxisSpacing: 10,
+          mainAxisSpacing: 10,
+        ),
+        itemCount: shops.length,
+        itemBuilder: (context, index) {
+          final shop = shops[index];
+          return GestureDetector(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => ShopScreen(shopName: shop['name']!),
+                ),
+              );
+            },
+            child: Card(
+              elevation: 4,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Image.network(
+                    shop['imageUrl']!,
+                    height: 80,
+                    width: 80,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) {
+                      return Icon(Icons.store, size: 80, color: Colors.grey);
+                    },
+                  ),
+                  SizedBox(height: 10),
+                  Text(
+                    shop['name']!,
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
     );
   }
 }
+
+  final List<Map<String, String>> shops = [
+    {'name': 'Shoprite', 'imageUrl': 'https://i.postimg.cc/qMjrDxvM/image.png'},
+    {'name': 'Pick n Pay', 'imageUrl': 'https://i.postimg.cc/kMyPDv8F/image.png'},
+    {'name': 'Game', 'imageUrl': 'https://i.postimg.cc/3NhhVLGW/image.png'},
+    {'name': 'Spar', 'imageUrl': 'https://i.postimg.cc/rFzZc19p/image.png'},
+    {'name': 'Edgars', 'imageUrl': 'https://i.postimg.cc/xdV6KWVk/image.png'},
+    {'name': 'Truworths', 'imageUrl': 'https://i.postimg.cc/VNzjs1cF/image.png'},
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Explore Shops'),
+        backgroundColor: Color.fromARGB(255, 64, 177, 113),
+      ),
+      body: GridView.builder(
+        padding: EdgeInsets.all(16),
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 3, // Two shops per row
+          crossAxisSpacing: 10,
+          mainAxisSpacing: 10,
+        ),
+        itemCount: shops.length,
+        itemBuilder: (context, index) {
+          final shop = shops[index];
+          return GestureDetector(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => ShopScreen(shopName: shop['name']!),
+                ),
+              );
+            },
+            child: Card(
+              elevation: 4,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Image.network(
+                    shop['imageUrl']!,
+                    height: 80,
+                    width: 80,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) {
+                      return Icon(Icons.store, size: 80, color: Colors.grey);
+                    },
+                  ),
+                  SizedBox(height: 10),
+                  Text(
+                    shop['name']!,
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+
 
 class ContributeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Center(
       child: Text('Contribute Screen'),
-    );
-  }
-}
-
-class ProfileScreen extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Text('Profile Screen'),
     );
   }
 }

@@ -27,6 +27,7 @@ flutter:
   assets:
     - assets/
     - assets/spar.png
+    - assets/logo.png
 
   fonts:
     - family: Roboto
